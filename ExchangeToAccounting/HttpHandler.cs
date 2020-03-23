@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Routing;
 
-namespace DefaultNamespace
+namespace ExchangeToAccounting
 {
     public class MyRouteHandler : IRouteHandler
     {
@@ -10,7 +10,7 @@ namespace DefaultNamespace
             return new HttpHandler();
         }
     }
-    public class HttpHandler: IHttpHandler
+    public class HttpHandler : IHttpHandler
     {
         public void ProcessRequest(HttpContext context)
         {
