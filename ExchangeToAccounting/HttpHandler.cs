@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Specialized;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
 using System.Web;
 using System.Web.Routing;
 
@@ -33,6 +36,22 @@ public class HttpHandler : IHttpHandler
         }
 
         //context.Response.Write(result);
+        SqlConnection connection = new SqlConnection(ConfigurationManager.ConnectionStrings["Test"].ConnectionString);
+        connection.Open();
+        using (SqlCommand command = new SqlCommand("[dbo].[Procedure]",connection))
+        {
+            command.CommandType = CommandType.StoredProcedure;
+
+            using (SqlDataReader reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    context.Response.Write(reader.GetString(reader.GetOrdinal("Result")));
+                }
+
+            }
+        }
+
     }
     public bool IsReusable
     {
@@ -42,53 +61,53 @@ public class HttpHandler : IHttpHandler
     private void ResponsTestInfo(HttpContext context)
     {
         string result = "";
-           result += "<p>AcceptTypes: " + context.Request.AcceptTypes + "</p>"
-                + "<p>AnonymousID: " + context.Request.AnonymousID
-                + "<p>ApplicationPath: " + context.Request.ApplicationPath + "</p>"
-                + "<p>AppRelativeCurrentExecutionFilePath: " + context.Request.AppRelativeCurrentExecutionFilePath +
-                "</p>"
-                + "<p>Browser: " + context.Request.Browser.Browser + "</p>"
-                + "<p>ClientCertificate: " + context.Request.ClientCertificate + "</p>"
-                + "<p>ContentEncoding: " + context.Request.ContentEncoding + "</p>"
-                + "<p>ContentLength: " + context.Request.ContentLength + "</p>"
-                + "<p>ContentType: " + context.Request.ContentType + "</p>"
-                + "<p>Cookies: " + context.Request.Cookies + "</p>"
-                + "<p>CurrentExecutionFilePath: " + context.Request.CurrentExecutionFilePath + "</p>"
-                + "<p>CurrentExecutionFilePathExtension: " + context.Request.CurrentExecutionFilePathExtension +
-                "</p>"
-                + "<p>FilePath: " + context.Request.FilePath + "</p>"
-                + "<p>Files: " + context.Request.Files + "</p>"
-                + "<p>Filter: " + context.Request.Filter + "</p>"
-                + "<p>Form: " + context.Request.Form + "</p>"
-                + "<p>Headers: " + context.Request.Headers + "</p>"
-                + "<p>HttpChannelBinding: " + context.Request.HttpChannelBinding + "</p>"
-                + "<p>HttpMethod: " + context.Request.HttpMethod + "</p>"
-                + "<p>InputStream: " + context.Request.InputStream + "</p>"
-                + "<p>IsAuthenticated: " + context.Request.IsAuthenticated + "</p>"
-                + "<p>IsLocal: " + context.Request.IsLocal + "</p>"
-                + "<p>IsSecureConnection: " + context.Request.IsSecureConnection + "</p>"
-                + "<p>LogonUserIdentity: " + context.Request.LogonUserIdentity + "</p>"
-                + "<p>Params: " + context.Request.Params + "</p>"
-                + "<p>Path: " + context.Request.Path + "</p>"
-                + "<p>PathInfo: " + context.Request.PathInfo + "</p>"
-                + "<p>PhysicalApplicationPath: " + context.Request.PhysicalApplicationPath + "</p>"
-                + "<p>PhysicalPath: " + context.Request.PhysicalPath + "</p>"
-                + "<p>QueryString: " + context.Request.QueryString + "</p>"
-                + "<p>RawUrl: " + context.Request.RawUrl + "</p>"
-                + "<p>ReadEntityBodyMode: " + context.Request.ReadEntityBodyMode + "</p>"
-                + "<p>RequestContext: " + context.Request.RequestContext + "</p>"
-                + "<p>RequestType: " + context.Request.RequestType + "</p>"
+        result += "<p>AcceptTypes: " + context.Request.AcceptTypes + "</p>"
+             + "<p>AnonymousID: " + context.Request.AnonymousID
+             + "<p>ApplicationPath: " + context.Request.ApplicationPath + "</p>"
+             + "<p>AppRelativeCurrentExecutionFilePath: " + context.Request.AppRelativeCurrentExecutionFilePath +
+             "</p>"
+             + "<p>Browser: " + context.Request.Browser.Browser + "</p>"
+             + "<p>ClientCertificate: " + context.Request.ClientCertificate + "</p>"
+             + "<p>ContentEncoding: " + context.Request.ContentEncoding + "</p>"
+             + "<p>ContentLength: " + context.Request.ContentLength + "</p>"
+             + "<p>ContentType: " + context.Request.ContentType + "</p>"
+             + "<p>Cookies: " + context.Request.Cookies + "</p>"
+             + "<p>CurrentExecutionFilePath: " + context.Request.CurrentExecutionFilePath + "</p>"
+             + "<p>CurrentExecutionFilePathExtension: " + context.Request.CurrentExecutionFilePathExtension +
+             "</p>"
+             + "<p>FilePath: " + context.Request.FilePath + "</p>"
+             + "<p>Files: " + context.Request.Files + "</p>"
+             + "<p>Filter: " + context.Request.Filter + "</p>"
+             + "<p>Form: " + context.Request.Form + "</p>"
+             + "<p>Headers: " + context.Request.Headers + "</p>"
+             + "<p>HttpChannelBinding: " + context.Request.HttpChannelBinding + "</p>"
+             + "<p>HttpMethod: " + context.Request.HttpMethod + "</p>"
+             + "<p>InputStream: " + context.Request.InputStream + "</p>"
+             + "<p>IsAuthenticated: " + context.Request.IsAuthenticated + "</p>"
+             + "<p>IsLocal: " + context.Request.IsLocal + "</p>"
+             + "<p>IsSecureConnection: " + context.Request.IsSecureConnection + "</p>"
+             + "<p>LogonUserIdentity: " + context.Request.LogonUserIdentity + "</p>"
+             + "<p>Params: " + context.Request.Params + "</p>"
+             + "<p>Path: " + context.Request.Path + "</p>"
+             + "<p>PathInfo: " + context.Request.PathInfo + "</p>"
+             + "<p>PhysicalApplicationPath: " + context.Request.PhysicalApplicationPath + "</p>"
+             + "<p>PhysicalPath: " + context.Request.PhysicalPath + "</p>"
+             + "<p>QueryString: " + context.Request.QueryString + "</p>"
+             + "<p>RawUrl: " + context.Request.RawUrl + "</p>"
+             + "<p>ReadEntityBodyMode: " + context.Request.ReadEntityBodyMode + "</p>"
+             + "<p>RequestContext: " + context.Request.RequestContext + "</p>"
+             + "<p>RequestType: " + context.Request.RequestType + "</p>"
 
-                + "<p>TimedOutToken: " + context.Request.TimedOutToken + "</p>"
-                + "<p>TlsTokenBindingInfo: " + context.Request.TlsTokenBindingInfo + "</p>"
-                + "<p>TotalBytes: " + context.Request.TotalBytes + "</p>"
-                + "<p>Unvalidated: " + context.Request.Unvalidated + "</p>"
-                + "<p>Url: " + context.Request.Url + "</p>"
-                + "<p>UrlReferrer: " + context.Request.UrlReferrer + "</p>"
-                + "<p>UserAgent: " + context.Request.UserAgent + "</p>"
-                + "<p>UserHostAddress: " + context.Request.UserHostAddress + "</p>"
-                + "<p>UserHostName: " + context.Request.UserHostName + "</p>"
-                + "<p>UserLanguages: " + context.Request.UserLanguages + "</p>";
+             + "<p>TimedOutToken: " + context.Request.TimedOutToken + "</p>"
+             + "<p>TlsTokenBindingInfo: " + context.Request.TlsTokenBindingInfo + "</p>"
+             + "<p>TotalBytes: " + context.Request.TotalBytes + "</p>"
+             + "<p>Unvalidated: " + context.Request.Unvalidated + "</p>"
+             + "<p>Url: " + context.Request.Url + "</p>"
+             + "<p>UrlReferrer: " + context.Request.UrlReferrer + "</p>"
+             + "<p>UserAgent: " + context.Request.UserAgent + "</p>"
+             + "<p>UserHostAddress: " + context.Request.UserHostAddress + "</p>"
+             + "<p>UserHostName: " + context.Request.UserHostName + "</p>"
+             + "<p>UserLanguages: " + context.Request.UserLanguages + "</p>";
         //+"<p>ServerVariables: " + context.Request.ServerVariables + "</p>"
         string ServerVariables = "<p>ServerVariables: ";
         foreach (var str in context.Request.ServerVariables)
