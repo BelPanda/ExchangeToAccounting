@@ -3,42 +3,40 @@ using System.Collections.Specialized;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Web;
 using System.Web.Routing;
 
-public class MyRouteHandler : IRouteHandler
-{
-    public IHttpHandler GetHttpHandler(RequestContext requestContext)
-    {
-        return new HttpHandler();
-    }
-}
+//public class MyRouteHandler : IRouteHandler
+//{
+//    public IHttpHandler GetHttpHandler(RequestContext requestContext)
+//    {
+//        return new HttpHandler();
+//    }
+//}
 public class HttpHandler : IHttpHandler
 {
+    private string result;
+    private string Result
+    {
+        get { return result; }
+        set { result = "<p>" + value + "</p>"; }
+    }
     public void ProcessRequest(HttpContext context)
     {
-        string result = "<p>Ваш IP: " + context.Request.UserHostAddress + "</p>";
-        result += "<p>UserAgent: " + context.Request.UserAgent + "</p>"
-                  + "<p>IISVersion: " + HttpRuntime.IISVersion + "</p>"
-                  + "<p>TargetFramework: " + HttpRuntime.TargetFramework + "</p>";
+        ExecuteProcedure();
 
+        OutputRequestParameters(context);
 
-        int loop1;
-        NameValueCollection coll;
+        context.Response.Write(Result);
+    }
 
-        //Load Form variables into NameValueCollection variable.
-        coll = context.Request.Form;
-        // Get names of all forms into a string array.
-        String[] arr1 = coll.AllKeys;
-        for (loop1 = 0; loop1 < arr1.Length; loop1++)
-        {
-            context.Response.Write("Form: " + arr1[loop1] + "<br>");
-        }
-
-        //context.Response.Write(result);
+    private void ExecuteProcedure()
+    {
         SqlConnection connection = new SqlConnection(ConfigurationManager.ConnectionStrings["Test"].ConnectionString);
         connection.Open();
-        using (SqlCommand command = new SqlCommand("[dbo].[Procedure]",connection))
+
+        using (SqlCommand command = new SqlCommand("[dbo].[Procedure]", connection))
         {
             command.CommandType = CommandType.StoredProcedure;
 
@@ -46,16 +44,36 @@ public class HttpHandler : IHttpHandler
             {
                 if (reader.Read())
                 {
-                    context.Response.Write(reader.GetString(reader.GetOrdinal("Result")));
+                    Result += reader.GetString(reader.GetOrdinal("Result"));
                 }
-
             }
         }
-
     }
+
+    private void OutputRequestParameters(HttpContext context)
+    {
+        Result += "Paremeters:";
+        foreach (var key in context.Request.QueryString.AllKeys)
+        {
+            string values = "";
+
+            foreach (var value in context.Request.QueryString.GetValues(key))
+            {
+                values += " " + value + ",";
+            }
+
+            Result += key + " = " + values.TrimEnd(',');
+        }
+
+        if (context.Request.QueryString.AllKeys.Contains("id"))
+        {
+            Result += context.Request.QueryString["id"];
+        }
+    }
+
     public bool IsReusable
     {
-        get { return false; }
+        get { return true; }
     }
 
     private void ResponsTestInfo(HttpContext context)
@@ -67,7 +85,7 @@ public class HttpHandler : IHttpHandler
              + "<p>AppRelativeCurrentExecutionFilePath: " + context.Request.AppRelativeCurrentExecutionFilePath +
              "</p>"
              + "<p>Browser: " + context.Request.Browser.Browser + "</p>"
-             + "<p>ClientCertificate: " + context.Request.ClientCertificate + "</p>"
+             + "<p>ClientCertificate: " + context.Request.ClientCertificate.SerialNumber + "</p>"
              + "<p>ContentEncoding: " + context.Request.ContentEncoding + "</p>"
              + "<p>ContentLength: " + context.Request.ContentLength + "</p>"
              + "<p>ContentType: " + context.Request.ContentType + "</p>"
@@ -97,7 +115,6 @@ public class HttpHandler : IHttpHandler
              + "<p>ReadEntityBodyMode: " + context.Request.ReadEntityBodyMode + "</p>"
              + "<p>RequestContext: " + context.Request.RequestContext + "</p>"
              + "<p>RequestType: " + context.Request.RequestType + "</p>"
-
              + "<p>TimedOutToken: " + context.Request.TimedOutToken + "</p>"
              + "<p>TlsTokenBindingInfo: " + context.Request.TlsTokenBindingInfo + "</p>"
              + "<p>TotalBytes: " + context.Request.TotalBytes + "</p>"
@@ -124,15 +141,35 @@ public class HttpHandler : IHttpHandler
         for (loop1 = 0; loop1 < arr1.Length; loop1++)
         {
             context.Response.Write("Key: " + arr1[loop1] + "<br>");
-            String[] arr2 = coll.GetValues(arr1[loop1]);
-            for (loop2 = 0; loop2 < arr2.Length; loop2++)
+            String[] arr3 = coll.GetValues(arr1[loop1]);
+            for (loop2 = 0; loop2 < arr3.Length; loop2++)
             {
-                context.Response.Write("Value " + loop2 + ": " + context.Server.HtmlEncode(arr2[loop2]) + "<br>");
+                context.Response.Write("Value " + loop2 + ": " + context.Server.HtmlEncode(arr3[loop2]) + "<br>");
             }
         }
         result += ServerVariables.Remove(ServerVariables.Length - 2, 2);
 
         context.Response.Write(result);
+
+        result = "<p>Ваш IP: " + context.Request.UserHostAddress + "</p>";
+        result += "<p>UserAgent: " + context.Request.UserAgent + "</p>"
+                  + "<p>IISVersion: " + HttpRuntime.IISVersion + "</p>"
+                  + "<p>TargetFramework: " + HttpRuntime.TargetFramework + "</p>";
+
+
+         loop1 = 0;
+         coll = null;
+
+        //Load Form variables into NameValueCollection variable.
+        coll = context.Request.Form;
+        // Get names of all forms into a string array.
+        String[] arr2 = coll.AllKeys;
+        for (loop1 = 0; loop1 < arr2.Length; loop1++)
+        {
+            context.Response.Write("Form: " + arr2[loop1] + "<br>");
+        }
+
+        //context.Response.Write(result);
 
     }
 }
